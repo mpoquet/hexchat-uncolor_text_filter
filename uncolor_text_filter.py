@@ -146,9 +146,20 @@ def uncolor_text(w, we, event):
 #
 
 # Setup callback on received messages.
-hook_names = ["Channel Message"]
+hook_names = [
+    'Channel Message',
+    'Channel Msg Hilight',
+    'Channel Action',
+    'Channel Action Hilight',
+    'Notice',
+    'Private Message',
+    'Private Message to Dialog',
+    'Private Action',
+    'Private Action to Dialog',
+]
+
 for hook_name in hook_names:
-    hexchat.hook_print(hook_name, uncolor_text, hook_name)
+    hexchat.hook_print(hook_name, uncolor_text, hook_name, priority=hexchat.PRI_HIGHEST)
 
 # Setup commands.
 hexchat.hook_command('uncolor_show_parameters', show_parameters, help="Shows current parameters")
