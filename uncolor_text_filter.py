@@ -26,7 +26,7 @@ def params_dict():
 
 def save_parameters():
     params = params_dict()
-    print("Saving parameters:", end=' ')
+    print("Saving parameters:")
     pprint(params)
     hexchat.set_pluginpref("uncolor_text_filter", json.dumps(params, sort_keys=True))
 
@@ -36,7 +36,7 @@ def load_parameters():
         params_str = hexchat.get_pluginpref("uncolor_text_filter")
         if params_str is None: raise TypeError("there are no saved parameters for the moment")
         params = json.loads(params_str)
-        print("Parameters read:", end=' ')
+        print("Parameters read:")
         pprint(params)
         if not isinstance(params['mode'], str): raise TypeError("mode is not a string")
         if params['mode'] not in ["blacklist", "whitelist"]: raise TypeError("mode is neither 'blacklist' nor 'whitelist'")
@@ -77,7 +77,7 @@ def remove_list(l, candidates):
 #
 def show_parameters(w, we, userdata):
     params = params_dict()
-    print("Current parameters:", end=' ')
+    print("Current parameters:")
     pprint(params)
     return hexchat.EAT_ALL
 
