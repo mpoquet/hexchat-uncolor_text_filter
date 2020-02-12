@@ -17,12 +17,15 @@ RECURSIVE_CALL = False # mark to avoid infinite callback loops.
 #
 # Functions.
 #
-def save_parameters():
-    params = {
+def params_dict():
+    return {
         "blacklist_mode": BLACKLIST_MODE,
         "blacklist": list(BLACKLIST),
         "whitelist": list(WHITELIST),
     }
+
+def save_parameters():
+    params = params_dict()
     print("Saving parameters:", end=' ')
     pprint(params)
     hexchat.set_pluginpref("uncolor_text_filter", json.dumps(params, sort_keys=True))
@@ -68,13 +71,8 @@ def remove_list(l, candidates):
 #
 # Commands.
 #
-
 def show_parameters(w, we, userdata):
-    params = {
-        "blacklist_mode": BLACKLIST_MODE,
-        "blacklist": list(BLACKLIST),
-        "whitelist": list(WHITELIST),
-    }
+    params = params_dict()
     print("Current parameters:", end=' ')
     pprint(params)
     return hexchat.EAT_ALL
