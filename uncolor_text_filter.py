@@ -19,9 +19,9 @@ RECURSIVE_CALL = False # mark to avoid infinite callback loops.
 #
 def params_dict():
     return {
-        "blacklist_mode": BLACKLIST_MODE,
-        "blacklist": list(BLACKLIST),
-        "whitelist": list(WHITELIST),
+        'mode': "blacklist" if BLACKLIST_MODE else "whitelist",
+        'blacklist': list(BLACKLIST),
+        'whitelist': list(WHITELIST),
     }
 
 def save_parameters():
@@ -38,7 +38,8 @@ def load_parameters():
         params = json.loads(params_str)
         print("Parameters read:", end=' ')
         pprint(params)
-        if not isinstance(params['blacklist_mode'], bool): raise TypeError("blacklist_mode is not a bool")
+        if not isinstance(params['mode'], str): raise TypeError("mode is not a string")
+        if params['mode'] not in ["blacklist", "whitelist"]: raise TypeError("mode is neither 'blacklist' nor 'whitelist'")
         if not isinstance(params['blacklist'], list): raise TypeError("blacklist is not a list")
         if not isinstance(params['whitelist'], list): raise TypeError("whitelist is not a list")
         for i, val in enumerate(params['blacklist']):
@@ -50,15 +51,18 @@ def load_parameters():
         global BLACKLIST_MODE
         global BLACKLIST
         global WHITELIST
-        BLACKLIST_MODE = params['blacklist_mode']
+        BLACKLIST_MODE = params['mode'] == 'blacklist'
         BLACKLIST = set(params['blacklist'])
         WHITELIST = set(params['whitelist'])
     except json.JSONDecodeError as e:
         print(f"Could not load parameters (bad JSON params): {e}")
+        print("WARNING: loaded default (empty) parameters")
     except TypeError as e:
         print(f"Could not load parameters (bad type in JSON params): {e}")
+        print("WARNING: loaded default (empty) parameters")
     except KeyError as e:
         print(f"Could not load parameters (missing key in JSON params): {e}")
+        print("WARNING: loaded default (empty) parameters")
 
 def add_list(l, candidates):
     really_new = set(candidates) - l
@@ -83,7 +87,7 @@ def toggle_mode(w, we, userdata):
     if BLACKLIST_MODE:
         print("Mode is now BLACKLIST: Messages from blacklisted nicks will be uncolored")
     else:
-        print("Mode is now WHITELIST: Messages from non-whitelisted nicks will be uncolored")
+        print("Mode is now WHITELIST: All messages will be uncolored but those from whitelisted nicks")
     save_parameters()
     return hexchat.EAT_ALL
 
@@ -91,7 +95,7 @@ def blacklist_add(w, we, userdata):
     global BLACKLIST
     BLACKLIST, added = add_list(BLACKLIST, w[1:])
     if len(added) > 0:
-        print(f"Newly blacklisted nicks: {list(added)}")
+        print(f"Added nicks to blacklist: {list(added)}")
         save_parameters()
     return hexchat.EAT_ALL
 
@@ -99,7 +103,7 @@ def whitelist_add(w, we, userdata):
     global WHITELIST
     WHITELIST, added = add_list(WHITELIST, w[1:])
     if len(added) > 0:
-        print(f"Newly whitelisted nicks: {list(added)}")
+        print(f"Added nicks to whitelist: {list(added)}")
         save_parameters()
     return hexchat.EAT_ALL
 
@@ -140,6 +144,7 @@ def uncolor_text(w, we, event):
 #
 # Begin of script.
 #
+
 # Setup callback on received messages.
 hook_names = ["Channel Message"]
 for hook_name in hook_names:
